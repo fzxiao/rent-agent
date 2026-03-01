@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Pytest
+.pytest_cache/
+
+# Logs
+agent_api_log.jsonl
+agent_api_log_*.jsonl
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
