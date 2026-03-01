@@ -1,0 +1,55 @@
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "items": [
+      {
+        "house_id": "HF_906",
+        "district": "海淀",
+        "bedrooms": 2,
+        "subway_distance": 280,
+        "price": 7200,
+        "decoration": "精装",
+        "community": "海淀某小区"
+      },
+      {
+        "house_id": "HF_1586",
+        "district": "海淀",
+        "bedrooms": 2,
+        "subway_distance": 450,
+        "price": 6800,
+        "decoration": "简装",
+        "community": "海淀某小区"
+      },
+      {
+        "house_id": "HF_1876",
+        "district": "海淀",
+        "bedrooms": 2,
+        "subway_distance": 520,
+        "price": 6500,
+        "decoration": "精装",
+        "community": "海淀某小区"
+      },
+      {
+        "house_id": "HF_706",
+        "district": "海淀",
+        "bedrooms": 2,
+        "subway_distance": 600,
+        "price": 6200,
+        "decoration": "简装",
+        "community": "海淀某小区"
+      },
+      {
+        "house_id": "HF_33",
+        "district": "海淀",
+        "bedrooms": 2,
+        "subway_distance": 750,
+        "price": 5900,
+        "decoration": "简装",
+        "community": "海淀某小区"
+      }
+    ],
+    "total": 5,
+    "page_size": 10
+  }
+}

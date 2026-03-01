@@ -1,0 +1,9 @@
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "items": [],
+    "total": 0,
+    "page_size": 10
+  }
+}

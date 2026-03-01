@@ -1,0 +1,15 @@
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "items": [
+      {
+        "id": "SS_001",
+        "name": "西二旗站",
+        "category": "subway",
+        "district": "海淀"
+      }
+    ],
+    "total": 1
+  }
+}

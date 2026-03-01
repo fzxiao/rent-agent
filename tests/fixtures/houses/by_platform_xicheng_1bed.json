@@ -1,0 +1,19 @@
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "items": [
+      {
+        "house_id": "HF_13",
+        "district": "西城",
+        "bedrooms": 1,
+        "subway_distance": 350,
+        "price": 4500,
+        "decoration": "精装",
+        "community": "西城某小区"
+      }
+    ],
+    "total": 1,
+    "page_size": 10
+  }
+}
