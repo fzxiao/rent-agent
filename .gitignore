@@ -1,11 +1,9 @@
 # Python
-.venv/
-venv/
 __pycache__/
 *.py[cod]
 *.egg-info/
-dist/
-build/
+.venv/
+venv/
 
 # Logs
 logs/
@@ -15,12 +13,6 @@ logs/
 .idea/
 .vscode/
 *.swp
-*.swo
 
 # OS
 .DS_Store
-Thumbs.db
-
-# Env
-.env
-.env.local
