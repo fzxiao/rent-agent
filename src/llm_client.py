@@ -6,9 +6,22 @@ from typing import Any
 
 import httpx
 
+from .api_logger import log_api_call
 from .config import LLM_PORT
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_json(resp: httpx.Response) -> dict:
+    """安全解析 JSON，避免空响应或非 JSON 内容导致崩溃"""
+    text = (resp.text or "").strip()
+    if not text:
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        logger.warning("Response is not JSON, status=%s, preview=%s", resp.status_code, text[:200])
+        return {"_raw_text": text[:500]}
 
 
 async def call_llm(
@@ -31,7 +44,15 @@ async def call_llm(
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
             resp = await client.post(url, json=payload, headers=headers)
-            body = resp.json() if resp.content else {}
+            body = _safe_json(resp)
+            log_api_call(
+                session_id=session_id,
+                api_name="llm_chat_completions",
+                url=url,
+                params={"messages_count": len(messages)},
+                status_code=resp.status_code,
+                response_summary=json.dumps(body, ensure_ascii=False, default=str)[:500],
+            )
             if resp.status_code >= 400:
                 logger.error("LLM error: %s %s", resp.status_code, body)
                 return ""

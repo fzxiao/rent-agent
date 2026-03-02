@@ -124,6 +124,7 @@ def _build_message_template(
 async def _execute_actions(
     actions: list[dict],
     user_id: str | None = None,
+    session_id: str | None = None,
 ) -> tuple[Any, list[str]]:
     """执行 actions 列表，支持多步（第二步可用第一步结果）"""
     last_result = None
@@ -142,7 +143,7 @@ async def _execute_actions(
                 first = items[0] if isinstance(items[0], dict) else {}
                 params["landmark_id"] = first.get("id", first.get("landmark_id", ""))
 
-        result = await call_housing_api(api, params, user_id=user_id)
+        result = await call_housing_api(api, params, user_id=user_id, session_id=session_id)
         if isinstance(result, dict) and "error" in result:
             return result, []
 
@@ -172,7 +173,7 @@ async def process_message(
 
     # 新 session 先 init
     if not is_initialized(session_id):
-        init_res = await init_housing(user_id=uid)
+        init_res = await init_housing(user_id=uid, session_id=session_id)
         mark_initialized(session_id)
         if isinstance(init_res, dict) and "error" in init_res:
             logger.warning("Init failed: %s", init_res)
@@ -187,7 +188,7 @@ async def process_message(
             params["page"] = ctx.last_page + 1
             params.setdefault("page_size", 10)
             api = ctx.last_api
-            result = await call_housing_api(api, params, user_id=uid)
+            result = await call_housing_api(api, params, user_id=uid, session_id=session_id)
             if isinstance(result, dict) and "error" in result:
                 pass
             else:
@@ -212,6 +213,7 @@ async def process_message(
                 "rent_house",
                 {"house_id": house_id, "listing_platform": "安居客"},
                 user_id=uid,
+                session_id=session_id,
             )
             if isinstance(result, dict) and "error" in result:
                 pass
@@ -253,7 +255,7 @@ async def process_message(
         ctx.add_assistant_message(reply)
         return reply, tool_results, False
 
-    result, house_ids = await _execute_actions(actions, user_id=uid)
+    result, house_ids = await _execute_actions(actions, user_id=uid, session_id=session_id)
 
     if isinstance(result, dict) and "error" in result:
         err_msg = result.get("error", "未知错误")

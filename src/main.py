@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from .agent import process_message
+from .api_logger import _backup_existing_log, log_run_start
 from .config import AGENT_PORT
 
 
@@ -27,6 +28,8 @@ class ChatResponse(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _backup_existing_log()
+    log_run_start()
     yield
 
 

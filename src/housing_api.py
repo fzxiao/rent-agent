@@ -5,9 +5,22 @@ from typing import Any
 
 import httpx
 
+from .api_logger import log_api_call
 from .config import HOUSING_API_BASE, X_USER_ID
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_json(resp: httpx.Response) -> dict | list:
+    """安全解析 JSON，避免空响应或非 JSON 内容导致崩溃"""
+    text = (resp.text or "").strip()
+    if not text:
+        return {}
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        logger.warning("Response is not JSON, status=%s, preview=%s", resp.status_code, text[:200])
+        return {"_raw_text": text[:500]}
 
 # operationId -> (method, path_template, path_params, needs_user_id)
 API_ROUTES = {
@@ -58,6 +71,7 @@ async def call_housing_api(
     params: dict[str, Any],
     base_url: str | None = None,
     user_id: str | None = None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """
     根据 operationId 和 params 调用租房 API。
@@ -85,17 +99,18 @@ async def call_housing_api(
             else:
                 resp = await client.post(url, params=query, headers=headers)
 
-            body = resp.json() if resp.content else {}
-            log_entry = {
-                "operation_id": operation_id,
-                "url": str(resp.url),
-                "status_code": resp.status_code,
-                "params": params,
-            }
-            logger.info("Housing API call: %s", json.dumps(log_entry, ensure_ascii=False))
+            body = _safe_json(resp)
+            log_api_call(
+                session_id=session_id or "",
+                api_name=operation_id,
+                url=str(resp.url),
+                params=params,
+                status_code=resp.status_code,
+                response_summary=json.dumps(body, ensure_ascii=False, default=str)[:500],
+            )
 
             if resp.status_code >= 400:
-                return {"error": body.get("message", str(resp.status_code)), "raw": body}
+                return {"error": body.get("message", str(resp.status_code)) if isinstance(body, dict) else str(resp.status_code), "raw": body}
 
             # 常见成功格式: { code: 0, data: ... }
             if isinstance(body, dict) and "data" in body:
@@ -106,7 +121,11 @@ async def call_housing_api(
         return {"error": str(e)}
 
 
-async def init_housing(base_url: str | None = None, user_id: str | None = None) -> dict[str, Any]:
+async def init_housing(
+    base_url: str | None = None,
+    user_id: str | None = None,
+    session_id: str | None = None,
+) -> dict[str, Any]:
     """新 session 时调用 POST /api/houses/init 重置用户房源状态"""
     base = base_url or HOUSING_API_BASE
     uid = user_id or X_USER_ID
@@ -115,10 +134,18 @@ async def init_housing(base_url: str | None = None, user_id: str | None = None) 
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.post(url, headers=headers)
-            body = resp.json() if resp.content else {}
+            body = _safe_json(resp)
+            log_api_call(
+                session_id=session_id or "",
+                api_name="init",
+                url=url,
+                params={},
+                status_code=resp.status_code,
+                response_summary=json.dumps(body, ensure_ascii=False, default=str)[:500],
+            )
             if resp.status_code >= 400:
-                return {"error": body.get("message", str(resp.status_code))}
-            return body.get("data", body)
+                return {"error": body.get("message", str(resp.status_code)) if isinstance(body, dict) else str(resp.status_code)}
+            return body.get("data", body) if isinstance(body, dict) else body
     except Exception as e:
         logger.exception("Init housing error: %s", e)
         return {"error": str(e)}
