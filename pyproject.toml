@@ -1,0 +1,18 @@
+[project]
+name = "rent-agent"
+version = "0.1.0"
+description = "租房 AI Agent - 智找安居·马年省心办"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "httpx>=0.26.0",
+]
+
+[project.scripts]
+rent-agent = "src.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
