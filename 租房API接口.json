@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://xxx:8080",
+            "url": "http://7.225.29.223:8080",
             "description": "租房仿真服务"
         }
     ],
