@@ -1,8 +1,8 @@
 """配置模块：工号、租房 API BaseURL 等可从环境变量读取"""
 import os
 
-# 工号，用于 X-User-ID，判题器按工号隔离
-USER_ID = os.environ.get("X_USER_ID", "f00954281")
+# 工号，用于 X-User-ID，判题器按工号隔离。可从 session_id 解析（eval_{工号}_EV-XX_...）优先
+USER_ID = os.environ.get("X_USER_ID", "f00952481")
 
 # 租房 API BaseURL
 RENT_API_BASE_URL = os.environ.get("RENT_API_BASE_URL", "http://7.225.29.223:8080")

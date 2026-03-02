@@ -79,7 +79,11 @@ async def call_rent_api(
     try:
         data = resp.json()
     except Exception:
-        return {"success": False, "error": f"Invalid JSON: {resp.text[:200]}"}
+        return {
+            "success": False,
+            "error": f"Invalid JSON: {resp.text[:200]}",
+            "status_code": resp.status_code,
+        }
 
     if resp.status_code >= 400:
         return {
@@ -104,7 +108,11 @@ async def call_init(base_url: Optional[str] = None, user_id: Optional[str] = Non
     try:
         data = resp.json()
     except Exception:
-        return {"success": False, "error": f"Invalid JSON: {resp.text[:200]}"}
+        return {
+            "success": False,
+            "error": f"Invalid JSON: {resp.text[:200]}",
+            "status_code": resp.status_code,
+        }
 
     if resp.status_code >= 400:
         return {"success": False, "error": data.get("message", resp.text), "status_code": resp.status_code}

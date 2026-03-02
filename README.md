@@ -21,9 +21,11 @@
 
 | 环境变量 | 说明 | 默认 |
 |---------|------|------|
-| X_USER_ID | 工号，用于 X-User-ID | f00954281 |
+| X_USER_ID | 工号，用于 X-User-ID | f00952481 |
 | RENT_API_BASE_URL | 租房 API 地址 | http://7.225.29.223:8080 |
 | AGENT_PORT | Agent 监听端口 | 8191 |
+
+**工号解析**：当 session_id 格式为 `eval_{工号}_EV-XX_...` 时，自动从 session_id 解析工号并优先使用，确保与判题器一致。
 
 ## 安装与运行
 

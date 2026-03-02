@@ -21,6 +21,8 @@ Thumbs.db
 # Logs
 *.log
 logs/
+agent_api_log.jsonl
+agent_api_log*.json.bak
 
 # Env
 .env

@@ -2,6 +2,7 @@
 Agent 核心逻辑：整合 LLM、租房 API、会话管理，处理单轮/多轮请求。
 """
 import json
+import re
 import time
 from typing import Any, Optional
 
@@ -9,6 +10,14 @@ from .config import MAX_HOUSES, USER_ID
 from .llm_client import call_llm, extract_house_ids_from_response
 from .rent_api_client import call_rent_api, call_init
 from .session_manager import SessionManager
+
+
+def _parse_user_id_from_session(session_id: str) -> str:
+    """从 session_id 解析工号。格式：eval_{工号}_EV-XX_..."""
+    m = re.match(r"eval_([^_]+)_EV-", session_id)
+    if m:
+        return m.group(1)
+    return USER_ID
 
 
 async def process_message(
@@ -23,10 +32,11 @@ async def process_message(
     """
     start_ts = time.time()
     tool_results: list[dict] = []
+    user_id = _parse_user_id_from_session(session_id)
 
     # 1. 新 session 先 init
     if session_manager.is_new_session(session_id):
-        init_res = await call_init()
+        init_res = await call_init(user_id=user_id)
         if api_logger:
             api_logger.log_api("init", "POST", f"/api/houses/init", {}, init_res, session_id)
         if init_res.get("success"):
@@ -86,7 +96,7 @@ async def process_message(
             if not params.get("listing_platform"):
                 params["listing_platform"] = "安居客"
 
-        result = await call_rent_api(api_name, params)
+        result = await call_rent_api(api_name, params, user_id=user_id)
         if api_logger:
             path = _get_api_path(api_name, params)
             api_logger.log_api(api_name, "GET" if "get_" in api_name else "POST", path, params, result, session_id)
